@@ -1,0 +1,19 @@
+Este archivo contiene el resumen de los cambios realizados en los archivos de codigo y las bases del proyecto.
+
+
+05-03-2024
+
+- Extraccion y descompresion de los archivos base desde el drive del proyecto.
+- Tratamiento preliminar de la base de datos. 
+- Extraccion de datos anidados.
+- Tratamiento de datos duplicados y nulos.
+- Estandarizacion de tipos de datos en columnas.
+
+12-03-2024
+
+- Creacion del Archivo Log
+- Generacion de nuevo diccionario de datos
+
+13-03-2024
+
+- EDA

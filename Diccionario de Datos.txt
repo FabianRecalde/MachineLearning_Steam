@@ -1,0 +1,94 @@
+Diccionario de datos
+
+
+Archivo: steam_games.parquet
+
+Descripcion General: Este archivo es la base de datos de todos los juegos.
+
+Columnas:
+
+- publisher: Companhia que publica el titulo. ej: Warner Bros. Interactive Entertainment
+- genres: Generos compatibles con el juego. ej: [Action, Adventure]
+- app_name: Contiene el nombre del juego. ej: Batman: Arkham City - Game of the Year Edition (Aparentemente Redundante)
+- title: Contiene el nombre del juego. ej: Batman: Arkham City - Game of the Year Edition
+- url: enlace que lleva al juego dentro del sitio de steam. ej: http://store.steampowered.com/app/200260
+- release_date: fecha exacta de lanzamiento del juego. ej: 2012-09-07
+- tags: Etiquetas de contenido (incluyen genero). ej: [Action, Open World, Batman, Adventure]
+- reviews_url: enlace que lleva a los reviews del juego. ej: http://steamcommunity.com/app/761140/reviews/?...
+- specs: especificaciones del juego. ej: [Single-player, Steam Achievements]
+- price: precio del juego. ej: 4.99
+- early_access: Acceso temprano. ej: 0
+- id: Identificador Unico del juego. ej: 767400
+- developer: Companhia que desarrollo el juego. Ej: Secret Level SRL
+
+Tipos de Datos:
+
+Columna 'publisher': [<class 'str'> <class 'NoneType'>]
+Columna 'genres': [<class 'list'> <class 'NoneType'>]
+Columna 'app_name': [<class 'str'> <class 'NoneType'>]
+Columna 'title': [<class 'str'> <class 'NoneType'>]
+Columna 'url': [<class 'str'>]
+Columna 'release_date': [<class 'str'> <class 'NoneType'>]
+Columna 'tags': [<class 'list'> <class 'NoneType'>]
+Columna 'reviews_url': [<class 'str'> <class 'NoneType'>]
+Columna 'specs': [<class 'list'> <class 'NoneType'>]
+Columna 'price': [<class 'float'>]
+Columna 'early_access': [<class 'float'>]
+Columna 'id': [<class 'float'>]
+Columna 'developer': [<class 'str'> <class 'NoneType'>]
+
+
+Archivo: user_reviews.parquet
+
+Descripcion General: Contiene todos los reviews que usuarios han dado a los juegos.
+
+Columnas:
+
+user_id: contiene el id unico del usuario que postea el review. ej: 76561197970982479
+user_url: enlace que lleva al perfil del usuario que postea el review. ej: http://steamcommunity.com/profiles/76561197970...
+funny: Contador de cuantas personas creen que el review es divertido. ej: 1 person found this review funny
+posted: Fecha en la que se realiza el review. ej: Posted September 8, 2013.
+last_edited: Fecha ultima de modificacion del review. ej:
+item_id: Identificador Unico del juego. ej: 767400
+helpful: Contador de cuantas personas creen que este review es util. ej: 15 of 20 people (75%) found this review helpful
+recommend: Indicador booleano para determinar si el usuario recomienda o no el juego. ej: True
+review: el review mismo. ej: I know what you think when you see this title ...
+
+Tipos de Datos:
+
+Columna 'user_id': [<class 'str'>]
+Columna 'user_url': [<class 'str'>]
+Columna 'funny': [<class 'str'>]
+Columna 'posted': [<class 'str'>]
+Columna 'last_edited': [<class 'str'>]
+Columna 'item_id': [<class 'int'>]
+Columna 'helpful': [<class 'str'>]
+Columna 'recommend': [<class 'bool'>]
+Columna 'review': [<class 'str'>]
+
+
+Archivo: users_items.parquet
+
+Descripcion General: Contiene todos los juegos jugados por cada jugador
+
+Columnas:
+
+user_id: contiene el id unico del usuario. ej: 76561197970982479
+items_count: cantidad de juegos jugados por el usuario. ej: 277
+steam_id: contiene el id unico del usuario (aparentemente redundante). ej: 76561197970982479
+user_url: enlace que lleva al perfil del usuario. ej: http://steamcommunity.com/profiles/76561197970... 
+item_id: Identificador Unico del juego. ej: 767400
+item_name: Nombre del juego. ej: Counter-Strike
+playtime_forever: Tiempo de juego total del usuario para dicho juego. ej: 7
+playtime_2weeks: Tiempo de juego del usuario para dicho juego en las ultimas dos semanas. ej: 7
+
+Tipos de Datos:
+
+Columna 'user_id': [<class 'str'>]
+Columna 'items_count': [<class 'int'>]
+Columna 'steam_id': [<class 'str'>]
+Columna 'user_url': [<class 'str'>]
+Columna 'item_id': [<class 'int'>]
+Columna 'item_name': [<class 'str'>]
+Columna 'playtime_forever': [<class 'int'>]
+Columna 'playtime_2weeks': [<class 'int'>]
