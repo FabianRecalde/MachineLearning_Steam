@@ -22,3 +22,12 @@ Este archivo contiene el resumen de los cambios realizados en los archivos de co
 
 - EDA user_reviews
 - Creacion de columna Sentiment Analisys
+
+16-03-2024
+
+- EDA user_reviews
+
+17-03-2024
+
+- EDA user_reviews
+- EDA users_items
