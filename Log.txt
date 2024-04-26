@@ -31,3 +31,10 @@ Este archivo contiene el resumen de los cambios realizados en los archivos de co
 
 - EDA user_reviews
 - EDA users_items
+
+18-03-2024 a 25-04-2024
+
+- migracion a otra cohorte.
+- reciclaje de codigo.
+- setup nueva computadora.
+- finalizacion de EDA steam_games y creacion de funciones.
