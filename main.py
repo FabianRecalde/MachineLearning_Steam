@@ -8,58 +8,27 @@ app = FastAPI()
 steam_games = pq.read_table("steam_games.parquet").to_pandas()
 users_items = pq.read_table("users_items.parquet").to_pandas()
 user_reviews = pq.read_table("user_reviews.parquet").to_pandas()
+max_playtime_per_genre = pq.read_table("max_playtime_per_genre.parquet").to_pandas()
+user_total_playtime_general = pq.read_table("user_total_playtime_general.parquet").to_pandas()
 
 @app.get("/PlayTimeGenre/{genre}")
 def PlayTimeGenre(genre: str):
-    # Convertir 'item_id' a tipo numérico si es necesario
-    users_items['item_id'] = pd.to_numeric(users_items['item_id'], errors='coerce')
-
-    # Unir las tablas utilizando la columna "id" en 'steam_games' y "item_id" en 'users_items'
-    merged_data = pd.merge(users_items, steam_games[['id', 'release_date', 'genres']], left_on="item_id", right_on="id", how="left")
-    
-    # Eliminar la columnas del dataframe resultante
-    merged_data.drop(['item_id','item_name','user_id','id', 'items_count', 'playtime_2weeks'], axis=1, inplace=True)
     
     # Filtrar los juegos que correspondan al género proporcionado
-    genre_data = merged_data.dropna(subset=['genres'])
+    genre_data = max_playtime_per_genre.dropna(subset=['genres'])
     genre_data = genre_data[genre_data['genres'].apply(lambda x: genre in x)]
-    
-    # Convertir la columna "release_date" a tipo datetime
-    try:
-        genre_data['release_date'] = pd.to_datetime(genre_data['release_date'], errors='raise', infer_datetime_format=True)
-    except ValueError:
-        # Si la inferencia de formato falla, intentar especificar el formato manualmente
-        genre_data['release_date'] = pd.to_datetime(genre_data['release_date'], errors='coerce', format='%b %Y')
-
-    # Extraer el año de la columna "release_date"
-    genre_data['year'] = genre_data['release_date'].dt.year
-
-    # Agrupar por año y calcular la suma de las horas jugadas para cada año
-    result = genre_data.groupby('year')['playtime_forever'].sum().reset_index()
 
     # Encontrar el año con la mayor cantidad de horas jugadas
-    max_year = result.loc[result['playtime_forever'].idxmax()]['year']
+    max_year = genre_data.loc[genre_data['playtime_forever'].idxmax()]['year']
 
     return f"El año con más horas jugadas para el género {genre} es: {max_year}"
 
 @app.get("/UserForGenre/{genre}")
 def UserForGenre(genre: str):
-    # Convertir 'item_id' a tipo numérico si es necesario
-    users_items['item_id'] = pd.to_numeric(users_items['item_id'], errors='coerce')
-
-    # Unir las tablas utilizando la columna "id" en 'steam_games' y "item_id" en 'users_items'
-    merged_data = pd.merge(users_items, steam_games, left_on="item_id", right_on="id", how="left")
-
-    # Eliminar la columnas del dataframe resultante
-    merged_data.drop(['item_id','price','id','app_name','item_name', 'items_count', 'playtime_2weeks'], axis=1, inplace=True)
 
     # Filtrar los juegos que correspondan al género proporcionado
-    genre_data = merged_data.dropna(subset=['genres'])
-    genre_data = genre_data[genre_data['genres'].apply(lambda x: genre in x)]
-    
-    # Extraer el año de la columna "release_date"
-    genre_data['year'] = genre_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[0].fillna(genre_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[2])
-    
+    genre_data = user_total_playtime_general[user_total_playtime_general['genres'].apply(lambda x: genre in x)]
+        
     # Agrupar por usuario y calcular la suma de las horas jugadas para cada usuario
     user_total_playtime = genre_data.groupby('user_id')['playtime_forever'].sum()
     user_total_playtime = user_total_playtime.reset_index()
