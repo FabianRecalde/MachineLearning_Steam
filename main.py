@@ -5,11 +5,11 @@ import pyarrow.parquet as pq
 app = FastAPI()
 
 # Cargar las tablas desde los archivos parquet
-steam_games = pq.read_table("steam_games.parquet").to_pandas()
-users_items = pq.read_table("users_items.parquet").to_pandas()
-user_reviews = pq.read_table("user_reviews.parquet").to_pandas()
 max_playtime_per_genre = pq.read_table("max_playtime_per_genre.parquet").to_pandas()
 user_total_playtime_general = pq.read_table("user_total_playtime_general.parquet").to_pandas()
+top_3_games_per_year = pq.read_table("top_3_games_per_year.parquet").to_pandas()
+bottom_3_games_per_year = pq.read_table("bottom_3_games_per_year.parquet").to_pandas()
+sentiment_counts_sorted = pq.read_table("sentiment_counts_sorted.parquet").to_pandas()
 
 @app.get("/PlayTimeGenre/{genre}")
 def PlayTimeGenre(genre: str):
@@ -54,30 +54,11 @@ def UserForGenre(genre: str):
 
 @app.get("/UsersRecommend/{year}")
 def UsersRecommend(year: str):
-    # Realizar un left merge entre user_reviews y steam_games
-    merged_data = pd.merge(user_reviews[['item_id', 'recommend', 'sentiment_analysis']],
-                           steam_games[['id', 'app_name', 'release_date']],
-                           left_on='item_id',
-                           right_on='id',
-                           how='left')
-    # Eliminando columnas innecesarias y datos nulos
-    merged_data.drop(['id', 'item_id'], axis=1, inplace=True)
-    merged_data = merged_data.dropna(subset=['release_date'])
-    
     # Filtrar los juegos del año especificado
-    # Extraer el año de la columna "release_date"
-    merged_data['year'] = merged_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[0].fillna(merged_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[2])
-    merged_data = merged_data[merged_data['year'] == str(year)]
-
-    # Filtrar los juegos recomendados con sentiment_analysis de 1 o 2
-    recommended_games = merged_data[(merged_data['recommend'] == True) & 
-                                    (merged_data['sentiment_analysis'].isin([1, 2]))]
-    
-    # Agrupar por app_name y sumar los valores de sentiment_analysis
-    grouped = recommended_games.groupby('app_name')['sentiment_analysis'].sum().reset_index()
+    top_3 = top_3_games_per_year[top_3_games_per_year['year'] == str(year)]
     
     # Ordenar los juegos basados en la suma de sentiment_analysis en orden descendente
-    recommended_games = grouped.sort_values(by='sentiment_analysis', ascending=False).reset_index().head(3)
+    recommended_games = top_3.sort_values(by='sentiment_analysis', ascending=False).reset_index().head(3)
     
     # Obtener los nombres de los juegos recomendados
     recommended_games_names = recommended_games['app_name'].tolist()
