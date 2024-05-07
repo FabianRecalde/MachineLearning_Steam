@@ -71,33 +71,12 @@ def UsersRecommend(year: str):
 
 @app.get("/UsersNotRecommend/{year}")
 def UsersNotRecommend(year: str):
-    # Realizar un left merge entre user_reviews y steam_games
-    merged_data = pd.merge(user_reviews[['item_id', 'recommend', 'sentiment_analysis']],
-                           steam_games[['id', 'app_name', 'release_date']],
-                           left_on='item_id',
-                           right_on='id',
-                           how='left')
-    # Eliminando columnas innecesarias y datos nulos
-    merged_data.drop(['id', 'item_id'], axis=1, inplace=True)
-    merged_data = merged_data.dropna(subset=['release_date'])
-    
-    # Filtrar los juegos del año especificado
-    # Extraer el año de la columna "release_date"
-    merged_data['year'] = merged_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[0].fillna(merged_data['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[2])
-    merged_data = merged_data[merged_data['year'] == str(year)]
 
-    # Filtrar los juegos recomendados con sentiment_analysis de 0
-    not_recommended_games = merged_data[(merged_data['recommend'] == False) & 
-                                    (merged_data['sentiment_analysis'].isin([0]))]
+    # Filtrar los juegos del año especificado
+    bottom_3 = bottom_3_games_per_year[bottom_3_games_per_year['year'] == str(year)]
     
-    # Agrupar por app_name y sumar los valores de sentiment_analysis
-    grouped = not_recommended_games.groupby('app_name').agg(
-        sentiment_analysis=('sentiment_analysis', 'sum'),
-        count=('sentiment_analysis', 'count')
-    ).reset_index()
-    
-    # Ordenar los juegos basados en la suma de sentiment_analysis en orden descendente
-    not_recommended_games = grouped.sort_values(by='count', ascending=False).reset_index().head(3)
+    # Ordenar los juegos basados en la suma de count en orden descendente
+    not_recommended_games = bottom_3.sort_values(by='count', ascending=False).reset_index().head(3)
 
     # Obtener los nombres de los juegos recomendados
     not_recommended_games = not_recommended_games['app_name'].tolist()
@@ -109,25 +88,21 @@ def UsersNotRecommend(year: str):
 
 @app.get("/sentiment_analysis/{year}")
 def sentiment_analysis(year: str):
-    # Agregar la columna "release_date" al dataframe "user_reviews" mediante un merge
-    reviews_with_release = pd.merge(user_reviews, steam_games[['id', 'release_date']], 
-                                    left_on='item_id', right_on='id', how='left')
-    
-    # Filtrar las reseñas del año especificado
-    reviews_with_release['year'] = reviews_with_release['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[0].fillna(reviews_with_release['release_date'].str.extract(r'(\d{4})|(\w{3}\s(\d{4}))')[2])
-    reviews_with_release = reviews_with_release[reviews_with_release['year'] == str(year)]
-    
-    # Contar las reseñas por categoría de sentimiento
-    sentiment_counts = reviews_with_release['sentiment_analysis'].value_counts()
-    
-    # Convertir los valores de numpy.int32 a int
-    sentiment_counts = sentiment_counts.astype(int)
-    
-    # Crear un diccionario con los conteos de cada categoría de sentimiento
-    result = {
-        'Negative': int(sentiment_counts.get(0, 0)),
-        'Neutral': int(sentiment_counts.get(1, 0)),
-        'Positive': int(sentiment_counts.get(2, 0))
-    }
 
-    return result
+    # Filtrar las reseñas del año especificado
+    reviews = sentiment_counts_sorted[sentiment_counts_sorted['year'] == (year)]
+    
+    # Crear un diccionario con valores predeterminados
+    sentiment_dict = {'Negative': 0, 'Neutral': 0, 'Positive': 0}
+
+    # Actualizar los valores del diccionario con los valores del DataFrame
+    for _, row in reviews.iterrows():
+        sentiment = row['sentiment_analysis']
+        if sentiment == 0:
+            sentiment_dict['Negative'] = row['count']
+        elif sentiment == 1:
+            sentiment_dict['Neutral'] = row['count']
+        elif sentiment == 2:
+            sentiment_dict['Positive'] = row['count']
+
+    return sentiment_dict
