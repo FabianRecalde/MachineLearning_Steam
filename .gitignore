@@ -1,0 +1,10 @@
+/entorno
+Readme.md
+Diccionario de Datos.txt
+*.ipynb
+.DS_Store
+/useful_tools
+/__pycache__
+steam_games.parquet
+user_reviews.parquet
+users_items.parquet
