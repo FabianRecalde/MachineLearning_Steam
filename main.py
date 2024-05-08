@@ -14,6 +14,9 @@ cosine_sim_df = pq.read_table("cosine_sim_df.parquet").to_pandas()
 
 @app.get("/PlayTimeGenre/{genre}")
 def PlayTimeGenre(genre: str):
+    # Verificar si el género se encuentra en la columna genres del DataFrame max_playtime_per_genre
+    if genre not in max_playtime_per_genre['genres'].unique():
+        return f"El género '{genre}' no se encuentra en la base de datos."
     
     # Filtrar los juegos que correspondan al género proporcionado
     genre_data = max_playtime_per_genre.dropna(subset=['genres'])
@@ -26,7 +29,11 @@ def PlayTimeGenre(genre: str):
 
 @app.get("/UserForGenre/{genre}")
 def UserForGenre(genre: str):
-
+    
+    # Verificar si el género se encuentra en la columna genres del DataFrame
+    if genre not in user_total_playtime_general['genres'].unique():
+        return f"El género '{genre}' no se encuentra en la base de datos."
+    
     # Filtrar los juegos que correspondan al género proporcionado
     genre_data = user_total_playtime_general[user_total_playtime_general['genres'].apply(lambda x: genre in x)]
         
@@ -55,6 +62,10 @@ def UserForGenre(genre: str):
 
 @app.get("/UsersRecommend/{year}")
 def UsersRecommend(year: str):
+    # Verificar si el año se encuentra en la columna year del DataFrame top_3_games_per_year
+    if str(year) not in top_3_games_per_year['year'].unique():
+        return f"El año '{year}' no se encuentra en la base de datos."
+
     # Filtrar los juegos del año especificado
     top_3 = top_3_games_per_year[top_3_games_per_year['year'] == str(year)]
     
@@ -72,8 +83,12 @@ def UsersRecommend(year: str):
 
 @app.get("/UsersNotRecommend/{year}")
 def UsersNotRecommend(year: str):
-
+    
+    # Verificar si el año se encuentra en la columna year del DataFrame bottom_3_games_per_year
+    if str(year) not in bottom_3_games_per_year['year'].unique():
+        return f"El año '{year}' no se encuentra en la base de datos."
     # Filtrar los juegos del año especificado
+    
     bottom_3 = bottom_3_games_per_year[bottom_3_games_per_year['year'] == str(year)]
     
     # Ordenar los juegos basados en la suma de count en orden descendente
@@ -89,6 +104,10 @@ def UsersNotRecommend(year: str):
 
 @app.get("/sentiment_analysis/{year}")
 def sentiment_analysis(year: str):
+
+    # Verificar si el año se encuentra en la columna year del DataFrame sentiment_counts_sorted
+    if year not in sentiment_counts_sorted['year'].unique():
+        return f"El año '{year}' no se encuentra en la base de datos."
 
     # Filtrar las reseñas del año especificado
     reviews = sentiment_counts_sorted[sentiment_counts_sorted['year'] == (year)]
@@ -112,8 +131,7 @@ def sentiment_analysis(year: str):
 def recomendacion_juego(juego: str):
     # Verificar si el juego está en el DataFrame
     if juego not in cosine_sim_df.index:
-        print(f"El juego '{juego}' no se encuentra en la base de datos.")
-        return
+        return(f"El juego '{juego}' no se encuentra en la base de datos.")
     
     # Obtener la fila de similitud del juego dado
     sim_row = cosine_sim_df.loc[juego]
