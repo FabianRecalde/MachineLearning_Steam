@@ -10,6 +10,7 @@ user_total_playtime_general = pq.read_table("user_total_playtime_general.parquet
 top_3_games_per_year = pq.read_table("top_3_games_per_year.parquet").to_pandas()
 bottom_3_games_per_year = pq.read_table("bottom_3_games_per_year.parquet").to_pandas()
 sentiment_counts_sorted = pq.read_table("sentiment_counts_sorted.parquet").to_pandas()
+cosine_sim_df = pq.read_table("cosine_sim_df.parquet").to_pandas()
 
 @app.get("/PlayTimeGenre/{genre}")
 def PlayTimeGenre(genre: str):
@@ -106,3 +107,21 @@ def sentiment_analysis(year: str):
             sentiment_dict['Positive'] = row['count']
 
     return sentiment_dict
+
+@app.get("/recomendacion_juego/{juego}")
+def recomendacion_juego(juego: str):
+    # Verificar si el juego está en el DataFrame
+    if juego not in cosine_sim_df.index:
+        print(f"El juego '{juego}' no se encuentra en la base de datos.")
+        return
+    
+    # Obtener la fila de similitud del juego dado
+    sim_row = cosine_sim_df.loc[juego]
+    
+    # Ordenar las similitudes en orden descendente y obtener los índices de los juegos más similares
+    most_similar_indices = sim_row.drop(juego).sort_values(ascending=False).head(5).index
+    
+    # Crear una lista con los juegos más similares
+    juegos_similares = [juego_similar for juego_similar in most_similar_indices]
+    
+    return juegos_similares
